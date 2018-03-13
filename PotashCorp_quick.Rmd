@@ -1,0 +1,100 @@
+---
+title: "POTASH "
+author: "Allan Perk, CFA"
+date: "22 May 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE }
+knitr::opts_chunk$set(echo = TRUE)
+library(pacman)
+p_load(ggplot2, raster, jpeg, quantmod, dplyr, knitr, gridExtra, tibble)
+load("pot.RData")
+load("pot_logret.RData")
+load("mc_dist.RData")
+```
+
+A quick look at Potash to display some possible analysis points. This does not include a detailed financial statement and forecast which should follow to conclude whether the stock is a clear buy.
+
+Fundamentally, fertilizer, machinery, and agriculture/food related stocks are an attractive theme for a buy and hold strategy in the next 5 years.
+
+* Fertilizer prices have bottomed and should see up-swing in the coming year on strong demand globally
+    + Improved farmer incomes due to higher productivity and favourable currencies in EM.
+    + China is pushing for further agriculture area expansion and controlling overseas supplies
+* Improved incomes and strong agri/food demand will once again stimulate area expansion and better fertilizer application
+* Agriculture and energy view (bullish) is supportive fertilizer prices, and related industry equities
+
+
+## Analysis Covered
+
+* FInancial ratio analysis
++ DCF valuation (quite easy to attach other valuation methods here)
++ Monte Carlo simulation for returns and growth expectations
+    + MC also useful for pricing exotic options: knock-out strucutres
+
+The analysis performed has been done programatically and can be adjusted for any stock ticker immediately.
+Next steps on this form of analysis would be to include a complete model where a stock or multiple stocks tickers can be plugged in to generate a comparative analysis, ranking, and more detail for quick screening.
+
+
+### Chart review
+
+Potash (POT) has been consolidating in the last year after a sharpe 5 year downtrend. The longer term chart seems to have put a bottom in for now, but requires a break of 20$ to confirm development of an uptrend. 
+
+The shorter term charts are supportive, despite having corrected from oversold after hitting the lower bollinger and RSI near 20. Prices look set to test the 50 day SMA, and a potential cross could indicate more follow through and bottoming.  Prices failed at the recent upper bollinger band after the correction from oversold and 
+
+All in the charts look like a good level to start buying towards the lower bollinger 16.25-16$.
+
+```{r echo = FALSE}
+POT %>% chartSeries(TA = "addSMA(100); addSMA(50); addVo(); addRSI()",
+                          subset = "2010/2017", theme = "white")
+
+POT %>% chartSeries(TA = " addBBands(); addVo(); addRSI()",
+                          subset = "2016/2017", theme = "white")
+
+```
+
+### DCF Valuation
+
+Valuations are mixed, but ignoring the justified traling PE for the moemnt, as this should mean-revert on improved earnings moving forward. Other ratios and indicators are neutral to supportive.
+
+* Price ratios are at/near all time highs as Earnings and Net Profit dissapointed in the latest reporting cycle.
++ BVPS is undervalued in absolute terms and compared to the peer group
++ DY for 2016 was quit attractive vs current prices (0.98$ or 6%), but the payout-ratio was quite high due to the low earnings in the last year. So far, both quarters in 2017 have seen dividends more than halved and therefore expect the DY to revert to 2.5-3%.
++ Growth remains at average pace, as does the debt ratio.
++ DCF valuations are supportive prices achieving 30-40$ range, with caveat that are lagging prices and need to have a proper forecast built in to them.  to include foward looking factor (lagging prices)
+
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+
+kable(ratios, caption = "Potash Corp")
+
+img = readJPEG("plota_POT.jpg")
+plot(img, type="n", xlim=c(100, 150), ylim=c(300, 350), main = "DCF Valuations")
+rasterImage(img,100, 300, 150, 350, interpolate = FALSE)
+```
+
+
+### Monte Carlo
+
+The distribution of monthly historical returns is approximately normal, with negative skew. The historica annual distribution is positively skewed, but there is not enough data to make a conclusion from it. Instead we run a monte carlo price simulation and calculat the return distribution on 1000 scenarios of 252 day price progression.
+
+The distribution of returns is normal and quite favorable to be long, with a medium return of 2.4% projected and a strong positive skew. The distribution would indicate 95% probability of a positive 
+
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+
+ggplot(m_log_returns, aes(x = monthly.returns))+geom_histogram(bins = 100)+
+  geom_density() + scale_x_continuous(limits = c(-.25, 0.25))+geom_rug()+ggtitle("Disribution of monthly log returns")
+
+##Distribution of log returns
+kable(t(data.frame(quantile = dist_m_log_returns)), caption = "Distribution of monthly returns")
+
+ggMC 
+
+kable(t(data.frame(quantile = dist_end_ret)), caption = "Distribution of Annual simulated returns")
+```
+
+
+## Conclusion
+
+Buy recommendation. We like the stock and potential upside, along with the low Beta (0.52) compared to the market and its peer group.
+Will seek to analyse the rest of the sector in more detail with the idea of a reasonable holding to diversify a core equity holding.
+

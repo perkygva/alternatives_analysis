@@ -1,0 +1,206 @@
+---
+title: "SOCINVEST_PORTFOLIO_DIVERSIFIER"
+author: "Allan Perk, CFA"
+output:
+  html_document: 
+    toc: true
+    toc_depth: 3
+    toc_float: True
+  html_notebook: default
+fontsize: 12pt
+---
+```{r include = F, warning=F, message = F, fig.align='center'}
+knitr::opts_chunk$set(echo=FALSE)
+source("load.R")
+suppressMessages(p_load(knitr, Quandl, quantmod, zoo ,PerformanceAnalytics, PortfolioAnalytics, quadprog, 
+       gridExtra, DEoptim, corrplot, raster, jpeg ))
+
+```
+
+## IPS Summary
+10 M USD diversified investment vehicle to complement a traditional overweight bond portfolio. Main target is to enhance returns. Strategic allocations based on a top down approach to selecting asset classes and sectors that we find we belie will outperform within the next 2 years. The selection process outlined below represents investing via ETFs, but this can vary and in effect be implemented via derivatives or other instruments. 
+
+* Investment Profile: Diversified
+  + Return Objective: Absolute Returns, target: 8%
+  + Risk Profile: medium
+  + Leverage: max 1.5x
+  + Liquidity: High
+  + Horizon: 2-5 years
+  + Benchmark: N/A 
+  + Rebalance: 
+    + Annual rebalance (IPS review)
+    + Active rebalance for alternatives / ETFs 
+    
+## Current Investment Theme 
+
+An extended mid expansionary economic cycle with low rates and low inflation! Expect upside to global growth and inflation as we start shifting to the late recovery over the next 5 years. Look for easing of monetary policies, reflation, and higher rates from 2018 onwards.  
+
+Our main investment theme for 2017 trough 2020 is **Reflation** and **Income Diversification**. In equities, favour  energy, consumer staples, and tech sectors. Fixed income should focus on low duration, high yielding and inflation linked issues. Seek diversification through alternative investments. 
+
+From a risk perspective, it is also a time for caution, and why we favour a diversified approach in the next two years, as well as shorter term active investing (TAA). We are cautioning due to political risks in the US and Brazil, growth prospects in China, and potential escalation of military actions in Syria and N.Korea. Volatility will increase and provide opportunities/returns for tactical allocations.
+
+*The investment in this portoflio is meant as an add-on portfolio to traditional assets and should not be seen as a core portfolio.*
+
+```{r echo = FALSE, messsage = FALSE, warning=FALSE}
+img = readJPEG("data/fidelity_cycles.jpg")
+plot(img, type="n", xlim=c(100, 250), ylim=c(300, 450), main = "Business Cycle estimation by Fidelity", xlab = "", ylab="")
+rasterImage(img,100, 300, 250, 450, interpolate = FALSE)
+```
+
+
+## Asset Classes
+
+The set-up is ripe for inflation exposure in alternative investments. Commodities, TIPS, REITS, EM and value stocks are on our radar. FX diversification to non-USD FX and assets.
+
+Below are historical returns, volatility, and correlations for core assets classes (via ETFs due to data access restrictions). Consider the risk-free rate (rf) at 12 month Libor + 100 points or **2.5%**. 
+
+
+
+```{r echo = F, fig.align='center', message = FALSE, warning = FALSE}
+assetRet = readRDS("assetRet.RDS")
+kable(t(table.AnnualizedReturns(assetRet, Rf = 0.03/12, digits = 2, geometric = TRUE)), caption = "Asset Classes: retursn, risk, and sharpe ratio")
+chart.RiskReturnScatter(assetRet, Rf = 0.03/12,add.boxplots = TRUE, xlim = c(0, 0.30), geometric=TRUE)
+
+corr = corrplot(cor(assetRet), method = "square", type="lower", tl.pos="top", tl.cex=0.5, title = "Asset Class correlations", mar = c(3, 2, 2, 2))
+corr = corrplot(cor(assetRet), add = TRUE, method = "number", type="upper", 
+                diag=FALSE,tl.pos="n", cl.pos="n", number.digits = 1, number.cex=0.6)
+
+```
+
+### Commodities 
+
+Energy and Agriculture commodities have been in an extended bear market for the last 5 years. Expect a significant opportunity for long exposure to both Energy and Agriulture markets with double digit returns. We have seen a nice recovery in some markets markets in the last 2 weeks, but continue to favour adding to the sector on dips.
+
+  * We prefer hand picking a basket of commodities, but believe the BCOM or DBA ETFs are also a good diversified exposure to the sector. Invesment recommendations:
+      + Buy commodity ETFs overweighting to Energy and Agriculture, underweigthing to Metals
+      + PowerShares DB Optimum Yield Diversified Commoidty Strategy Portfolio (PDBD)
+      + PowerShares DB Agriculture Fund (DBA)
+      + PowerShares DB Oil Fund (DBO)
+      
+
+  * Renewable Energy is another expanding sector and is becoming a larger component of energy generation. The UK recently achieved a full day of electricity generation from 100% renewable sources. The sector has performed poorly, with significant losses from 2015 peaks, leading valuations to attractive levels.  
+    + Guggenhein Solar ETF (TAN)
+
+  * Gold: We like gold exposure both as part of our commodity basket, but also as part of our FX basket. 
+  
+  
+### FX and Gold
+
+We believe more political and economic turmoil will be seen through-out 2017 in the USA and Brazil. Thus we expect USD/DXY will continue to weaken towards low 90s. We expect growth in EU and UK to improve, beating expectations and prefer a diversified basket of FX including GBP, EUR, and CHF. This position has played out roughly half our expectation already in the currencies with targets of GBP at 1.40-1.44, EUR at 1.16-1.20 and CHF at 0.92=0.94. As for gold, we see high single digit upside . Recommendations:
+
+  * Buy Gold ETF 
+  * Long basket of 30% GBP, 20% CHF, 20% EUR, 30% Gold vs Short USD
+
+Another attractive investment we have believe is Short BRL vs the Long Agri commodity exposure, as we see another difficult year for Brazil  This is a slighlty aggressive and volatile position that would require intra-month rebalancing. After the recent depreciation to 3.40 we would have take profit. Look to re-enter the BRL leg sub 3.20.
+
+
+### Real Estate
+The US housing market has seen a strong recovery in the last 5 years and we expect it to continue for another 2 years or more, as rates and mortgages remain low. 
+
+  * Developed market GDP growth is expected to between 1.5-2.5% and global growth at 3%,whcih will continue to improve employment rates and wage growth. 
+  + New housing starts continue to lag exisiting home sales, and strong demand for home ownership will continue to pressure the market. 
+  + We favour a diversied exposure to US and foreign REITS, and US home-builders which will provide easy access to the real estate markets with low fees and reasonable dividend yield. The caveat that these have a high equity beta.
+
+REITS
+
+  * iShares US Real Estate ETF (IYR)
+  + Vanguard REIT ETF (VNQ): low fees, exposure to 150 US REITS, retail = 25%, E=0.12%, DY=4%
+  + iShares Global REIT ETF (REET): international exposure, 63% US, E=0.14%, DY=3.9%
+  + Schwab US REIT ETF (SCHH): lowest fees E=0.07%, DY = 2.8%
+
+Homebuilders
+
+  * SPDR S&P Homebuilders ETF (XHB) 
+  + iShares U.S. Home (ITB) 
+
+```{r echo = F}
+hm = Quandl("FMAC/HPI", api_key="nkyxXwVhvJpoHmXyibma", start_date="1990-01-01")
+hm.US = hm[,c("Date","United States seasonaly adjusted")]
+
+g1 = ggplot(hm.US, aes(x=Date, y=hm.US[,2]))+geom_line()+ylab("price index")+
+  ggtitle("US Housing Market - Price Index")+ scale_x_date(date_breaks = "5 year", date_label = "%Y")
+
+#Federal Reserve housing starts
+houst = Quandl("FRED/HOUST", api_key="nkyxXwVhvJpoHmXyibma")
+g2 = ggplot(houst, aes(x=Date, y=Value))+geom_line()+ylab("price index")+
+  ggtitle("US Housing Starts")+ scale_x_date(date_breaks = "5 year", date_label = "%Y")
+
+grid.arrange(g1, g2, nrow = 2)
+```
+
+
+### Equities 
+From a top down level, our views on the business cycle, easing monetary policies, FX, and reflation favour owning Energy, Tech and Consumer Staples. We also like value stocks with reasonable dividend yields to complement income. Historically, small caps and value stocks have outperformed in periods of rising rates.
+
+Equity returns have been stellar and we believe now is a good time to capture some profit by selling calls (covered calls) to fund further downside protection. We'll be adding further beta exposure elsewhere (such as REITS, small caps). We also favour rotation into EU/UK/EM stocks and high dividend stocks to complement income. 
+
+```{r echo = FALSE, fig.align = 'center'}
+load("sectors.RData")
+ggplot(sectors, aes(x=Name, y = PE))+ geom_bar(stat = "identity", fill="steelblue")+
+  labs(title = "US Sector valuations: Energy and Tech remain cheap")
+chart.RiskReturnScatter(asset_ret, Rf = 0.03/12, add.names=TRUE, 
+                       xlim = c(0.03, 0.30), add.boxplots = TRUE)
+
+```
+
+Recommendations
+* ETFs:
+    + Ishares Russel Mid-Cap Value ETF (IWS)
+    + Vanguard Mid-Cap Value ETF(VOE)
+    + Energy Select Sector SPDR (XLE)
+  
+* Energy stocks
+   + BP plc (BP): DY=6.8%; Shell (RDS) 
+   + Schlumberger Limited (SLB) : Energy exploration
+   + Apache Corp. (APA) : shale gas
+
+* Master Limited Partnerships (MLPs): these are attractive high yielding stocks that will turn around with the recovery in the Energy sector. 
+    + Energy Transfer Partners (NYSE: ETP)
+    + Enterprise Products Partners (NYSE:EPD), Yield: 6.1%
+    + SandRidge (SDT), American Midstream (AMID), Energy Transfer Partners (ETP), to name a few. These 
+
+*For each broad sector considered, I would look at a more attractive basket of stocks or etfs as opposed to the index*
+
+### Fixed Income
+Given the "main portfolio" is overweight to fixed income, we will not provide much insight here and do not have strong conviction on any major trades. Rising rates and inflation in developed markets, and low expected returns in sovereign bonds favour being underweight sovereigns and overweigth high yielding issues. Look at some solid corporate EM bonds and high coupns.  Some ideas to explore: 
+
+  * Long HY bonds vs short Bond Index / ETF. Again an income play for 2017, as rates will only gradually increase throughout the year with 2 more rate hikes of small increments. 
+  + Long TIPS 25-40% of cash holdings in TIPS as opposed to other money market instruments or pure cash
+  + Review duration exposure on case by case, with short-term rates expected to rise faster than long-term as monetary policy begins to tighten in the US.
+  + EM sovereign and corporate bond ownership. Again detailed analysis required.
+
+## Optimal Asset Class Allocations
+The optimal/target asset allocation is a weighted average of our expected returns by asset class, a minimum variance portfolio (max return by risk) and a pure maximum return portfolio. Both constrained to long-only investing, but with range of 90-110% of full investment. Our thematic portoflio weights were factored in with 3 times the weighting, as we force our expected returns in for 2017 (next step would be to have the model adjust for these).
+Both otpimized portfolios were back-tested between 2012-2015 with annual rebalance, and then trained on 2016 data. (we should realistically back-test these for 7-10 years to pick up a full economic cycle). (Next steps in this form of analysis is to incorporate simulations as well - Monte Carlo)
+
+Our end result is a fairly diversified portfolio with 37% in alternative investments (commodities and REITs), 19% in non-US Equities (Small Cap and EM), 9% in TIPS and 40% in US Equities with value strategy (with small/mid caps against broad market index).
+
+*Note on FX: we did not include weightings, as this is a basket vs USD, but exposure should be factored into risk analysis/*
+
+```{r echo 0 FALSE, warning=F, message = F}
+load("pt.assets.RData")
+load("portWeights.RData")
+kable(port_weights, caption = "Portfolio Weightings")
+chart.CumReturns(PTComparison, main='Performance of Various Strategies', legend.loc = "left")
+kable(table.AnnualizedReturns(PTComparison, Rf=0.03/12), captions = "Annualized return comparison")
+kable(table.CAPM(PTComparison, PTComparison[,4])[c(2,6,9,10,11,12),], caption = "Performance Attribution compared to Total Market return (broad equity market ETF)")
+kable(table.DownsideRisk(PortfolioComparisonData, Rf = 0.03/12), caption = "Risk parameters")
+
+```
+
+## Overlay Strategies
+
+The above investment guide is long-only addition. Realistically, I would suggest the portfolio above on a complimentary fashion, which would vary based on investor risk appetite/aversion. 
+* 130-30 long-short for risk seekers optimizing asset class exposure: FI in HY / TIPS and EQ in value vs benchmarks / indices (stock screening to be performed)
+* 100-30 for risk averse investors, being under-invested with reduced beta and duration. The two options here would be 30% in cash or 30% short via puts in bonds and equity indices.
+
+
+## NEXT STEPS
+
+1. Improve Equity sector E(R) forecasts
+    + single stock screening
+    + single stock valuation
+    + optimal stock weightings
+2. More fixed income analysis
+3. Deeper research in ETFs for best cost-return-income balance
+4. Create better equity screening model (multiple by type of strategy)
